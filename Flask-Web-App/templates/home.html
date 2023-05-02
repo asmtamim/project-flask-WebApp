@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Home</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+	<style>
+		.table {
+			width: 70%;
+		}
+
+		th,td {
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand">[ Flask Web Application ]</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="{{url_for('home')}}">Home</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="#">Hello, <strong>{{username}}</strong></a></li>
+				<li class="active"><a href="{{url_for('logout')}}"><b>Logout </b><span
+							class="glyphicon glyphicon-log-in"></span></a></li>
+			</ul>
+		</div>
+	</nav>
+
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul class=flashes>
+		{% for message in messages %}
+		<li>{{ message }}</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+	{% endwith %}
+
+	<div class="container-fluid">
+		<h3><u><b>Upload File</b></u></h3><br>
+		<form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+			<input type="file" name="file"><br>
+			<input type="submit" value="Upload">
+		</form>
+	</div>
+
+	<hr>
+	<div class="container-fluid">
+		<h3><u><b>Uploaded File</b></u></h3><br>
+		<table class="table table-hover table-bordered">
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Download</th>
+				<th>Action</th>
+			</tr>
+			{% for row in data %}
+			<tr>
+				<td>{{ row[1] }}</td>
+				<td>{{ row[3] }}</td>
+				<td>
+					<form action="{{ url_for('download_file', filename=row[1]) }}"
+						onsubmit="return confirm('Do you want to download this file?')">
+						<button type="submit">Download</button>
+					</form>
+				</td>
+				<td>
+					<form action="{{ url_for('delete_file', filename=row[1]) }}" method="POST"
+						onsubmit="return confirm('Are you sure to delete this file?')">
+						<button type="submit">Delete</button>
+					</form>
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+
+</body>
+
+</html>
