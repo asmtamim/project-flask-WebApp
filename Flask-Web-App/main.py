@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, Response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from flask_mysqldb import MySQL
 import mysql.connector
 import aiofiles
@@ -15,17 +15,11 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '117734'
 app.config['MYSQL_DB'] = 'flask_wa'
 
-# files = UploadSet('files', ALL)
-# configure_uploads(app, files)
-# mysql = MySQL(app)
-
 # File upload configuration
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg'}
 
-mysql = mysql.connector.connect(host=app.config['MYSQL_HOST'], user=app.config['MYSQL_USER'], password=app.config['MYSQL_PASSWORD'], 
-                                database=app.config['MYSQL_DB'])
-
+mysql = mysql.connector.connect(host=app.config['MYSQL_HOST'], user=app.config['MYSQL_USER'], password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
 cursor = mysql.cursor()
 
 if (mysql.is_connected()):
@@ -33,6 +27,7 @@ if (mysql.is_connected()):
 else:
     print("MySQL db is NOT connected! ***")
 
+# Index & Home
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -43,6 +38,7 @@ def home():
     data = cursor.fetchall()
     return render_template('home.html', username=session['username'], data=data)
 
+# Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     text = ""
@@ -61,6 +57,7 @@ def login():
     
     return render_template('login.html', text=text)
 
+# Logout
 @app.route('/logout')
 def logout():
     session.pop('Logged in', None)
@@ -107,9 +104,7 @@ async def download_file(filename):
 	if os.path.exists(file_path):
 		async with aiofiles.open(file_path, mode='rb') as f:
 			contents = await f.read()
-		return Response(contents, mimetype="application/octet-stream",
-			headers={"Content-disposition": f"attachment; filename={filename}"}
-		)
+		return Response(contents, mimetype="application/octet-stream", headers={"Content-disposition": f"attachment; filename={filename}"})
 	else:
 		flash("The requested file does not exist.")
 		return redirect(url_for('home'))
@@ -118,4 +113,3 @@ async def download_file(filename):
 # App run
 if __name__ == '__main__':
     app.run(debug=True)
-
